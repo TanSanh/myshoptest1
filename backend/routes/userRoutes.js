@@ -8,8 +8,8 @@ const authenticateToken = require("../middleware/auth");
 router.post("/register", userController.registerUser);
 router.post("/login", userController.loginUser);
 router.get("/me", authenticateToken, userController.getCurrentUser);
-router.get("/verify-email/:token", userController.verifyEmail);
 
+// Cart routes
 router.get("/cart", authenticateToken, cartController.getCart);
 router.put("/cart", authenticateToken, cartController.updateCart);
 router.delete(
@@ -19,6 +19,7 @@ router.delete(
 );
 router.delete("/cart", authenticateToken, cartController.clearCart);
 
+// Payment history routes
 router.get(
   "/payment-history",
   authenticateToken,
