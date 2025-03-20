@@ -363,7 +363,9 @@ export default {
           const product =
             this.$store.getters["products/getProductById"](productId);
           if (!product) {
-            console.warn(`Product with ID ${productId} not found in store.`);
+            console.warn(
+              `Sản phẩm với ID ${productId} không tìm thấy trong cửa hàng.`
+            );
             continue; // Bỏ qua nếu product không tồn tại
           }
           if (productQuantities[productId] > (product.stock || 0)) {
@@ -437,7 +439,7 @@ export default {
   text-align: center;
   border-bottom: 1px solid #e0e0e0;
   vertical-align: middle;
-  height: 30px; /* Đặt chiều cao cố định cho các ô để đồng bộ */
+  height: 30px;
 }
 
 .cart-table th {
@@ -534,13 +536,13 @@ export default {
 .btn-danger {
   background-color: #d9534f;
   color: #ffffff;
-  padding: 6px 10px; /* Điều chỉnh padding để khớp với chiều cao ô */
+  padding: 6px 10px;
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s;
   border: none;
-  line-height: 1; /* Đảm bảo nút "X" căn chỉnh với các cột khác */
-  box-sizing: border-box; /* Bao gồm border trong kích thước */
+  line-height: 1;
+  box-sizing: border-box;
 }
 
 .btn-danger:hover {

@@ -1,5 +1,5 @@
 const asyncHandler = require("express-async-handler");
-const mongoose = require("mongoose"); // Thêm mongoose để kiểm tra ObjectId
+const mongoose = require("mongoose");
 const Order = require("../models/paymentHistoryModel");
 const Cart = require("../models/cartModel");
 const Product = require("../models/productModel");
@@ -67,21 +67,17 @@ exports.addOrder = asyncHandler(async (req, res) => {
   try {
     // Tạo đơn hàng mới
     const order = await Order.create(orderData);
-    
+
     // Cập nhật số lượng sản phẩm đã bán (sold)
     for (const item of items) {
-      await Product.findByIdAndUpdate(
-        item.productId,
-        { $inc: { sold: item.quantity } }
-      );
+      await Product.findByIdAndUpdate(item.productId, {
+        $inc: { sold: item.quantity },
+      });
     }
-    
-    // Lưu ý: Không xóa toàn bộ giỏ hàng ở đây
-    // Việc xóa các sản phẩm đã mua khỏi giỏ hàng sẽ được xử lý ở phía frontend
-    
+
     res.status(201).json(order);
   } catch (error) {
-    console.error("Error creating order:", error);
+    console.error("Lỗi tạo đơn hàng:", error);
     res.status(500);
     throw new Error("Lỗi khi tạo đơn hàng: " + error.message);
   }

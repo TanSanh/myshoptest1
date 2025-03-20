@@ -23,10 +23,10 @@ connectDB();
 
 // Middleware
 app.use(cors());
-app.use(express.json()); // Sử dụng express.json thay vì body-parser
+app.use(express.json());
 
 // Các tuyến đường
-app.use("/products", productRoutes); // Changed from /api/products to /products
+app.use("/products", productRoutes);
 app.use("/users", userRoutes);
 app.use("/emails", emailRoutes);
 app.use("/api/auth", authRoutes);
@@ -40,12 +40,12 @@ app.use((req, res, next) => {
   throw new Error("Tuyến đường không tồn tại!");
 });
 
-// Error handler (chỉ giữ lại 1 error handler)
+// Error handler middleware
 app.use((err, req, res, next) => {
   console.error(err);
   res.status(err.status || 500).json({
     success: false,
-    message: err.message || "Internal server error",
+    message: err.message || "Lỗi máy chủ nội bộ",
   });
 });
 

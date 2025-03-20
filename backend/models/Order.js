@@ -54,7 +54,7 @@ const orderSchema = new Schema(
     paymentMethod: {
       type: String,
       required: true,
-      enum: ["COD", "Banking", "Momo", "ZaloPay"],
+      enum: ["COD", "MOMO", "VNPAY"],
     },
     paymentResult: {
       id: { type: String },

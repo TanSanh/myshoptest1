@@ -1,6 +1,6 @@
 import { createApp } from "vue";
 import App from "./App.vue";
-import store from "./store"; // Vuex Store
+import store from "./store";
 import router from "./router";
 import axios from "axios";
 import "@fortawesome/fontawesome-free/css/all.css";
@@ -27,7 +27,7 @@ axios.interceptors.response.use(
 // Tạo ứng dụng Vue
 const app = createApp(App);
 
-// (Tuỳ chọn) Bật devtools trong môi trường phát triển
+//  Bật devtools trong môi trường phát triển
 if (process.env.NODE_ENV === "development") {
   app.config.devtools = true;
 }

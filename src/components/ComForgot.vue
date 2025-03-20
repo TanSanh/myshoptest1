@@ -133,7 +133,6 @@ export default {
   margin-top: 5px;
 }
 
-/* Nút quên mật khẩu */
 .btn-submit {
   padding: 12px;
   background-color: #fcb034;
@@ -149,7 +148,6 @@ export default {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* Link quay lại đăng nhập */
 .back-link {
   margin-top: 20px;
   color: #555;

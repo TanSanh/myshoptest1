@@ -146,7 +146,6 @@ export default {
       };
 
       try {
-        // CHỖ SỬA: Gọi "/users/register" thay vì "/user/register"
         const res = await axios.post(
           "http://localhost:5001/users/register",
           userData
@@ -157,7 +156,7 @@ export default {
         this.$router.push("/login");
       } catch (error) {
         console.error("Lỗi đăng kí:", error);
-        // Kiểm tra nếu server trả về "Email already exists" (VD status 409)
+      
         if (
           error.response &&
           error.response.status === 409 &&

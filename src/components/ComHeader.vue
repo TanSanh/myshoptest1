@@ -1,7 +1,8 @@
 <template>
   <header class="main-header">
     <div class="header-container">
-      <!-- Nút icon menu (3 gạch) -->
+      <!-- Nút 3 gạch mở sidebar danh mục -->
+
       <div class="menu-icon" @click="toggleCategoryMenu">
         <i class="fa-solid fa-bars"></i>
       </div>
@@ -120,19 +121,15 @@ export default {
   },
   computed: {
     ...mapGetters("auth", ["isAuthenticated", "currentUser"]),
-    ...mapGetters("cart", ["cartCount"]), // Lấy số lượng sản phẩm trong giỏ (nếu cartCount có)
+    ...mapGetters("cart", ["cartCount"]),
   },
-  created() {
-    // Nếu bạn có action checkAuth (kiểm tra token) thì gọi ở đây:
-    // this.$store.dispatch("auth/checkAuth");
-  },
+  created() {},
   methods: {
     toggleCategoryMenu() {
       this.showCategoryMenu = !this.showCategoryMenu;
     },
     logout() {
       this.$store.dispatch("auth/logout");
-      // Nếu có vue-toastification
       if (this.$toast) {
         this.$toast.success("Đăng xuất thành công!");
       }
@@ -167,7 +164,7 @@ export default {
   left: 0;
   width: 100%;
   z-index: 1000;
-  height: 6vh; /* Chiều cao tuỳ ý */
+  height: 6vh;
 }
 
 .header-container {
@@ -178,7 +175,7 @@ export default {
   align-items: center;
 }
 
-/* Nút icon 3 gạch */
+
 .menu-icon {
   margin-right: 30px;
   font-size: 30px;
@@ -188,7 +185,7 @@ export default {
   color: #4111c3;
 }
 
-/* Social icons */
+
 .social-icons {
   display: flex;
   gap: 15px;
@@ -204,14 +201,14 @@ export default {
   color: #2311e2;
 }
 
-/* Logo */
+
 .logo img {
   height: 75px;
   margin-right: 30px;
   border-radius: 60px;
 }
 
-/* Menu chính */
+
 nav {
   flex: 1;
 }
@@ -233,7 +230,7 @@ nav {
   color: #452abd;
 }
 
-/* Khu vực user/login/cart */
+
 .header-actions {
   display: flex;
   align-items: center;
@@ -277,7 +274,7 @@ nav {
   color: #ffffff;
 }
 
-/* Icon tìm kiếm, giỏ hàng */
+
 .header-icons {
   display: flex;
   align-items: center;
@@ -314,7 +311,7 @@ nav {
   font-size: 12px;
 }
 
-/* Overlay khi sidebar mở */
+
 .overlay {
   position: fixed;
   top: 0;
@@ -325,7 +322,7 @@ nav {
   z-index: 998;
 }
 
-/* Sidebar danh mục */
+
 .category-menu-container {
   position: fixed;
   top: 0;
@@ -363,7 +360,7 @@ nav {
   cursor: pointer;
 }
 
-/* Danh sách danh mục */
+
 .category-menu {
   list-style: none;
   margin: 0;
@@ -387,7 +384,7 @@ nav {
   background-color: #f2f2f2;
 }
 
-/* Responsive design */
+
 @media (max-width: 768px) {
   .header-container {
     flex-direction: column;

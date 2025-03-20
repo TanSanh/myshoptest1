@@ -26,9 +26,9 @@ export default {
   },
   computed: {
     isAdminRoute() {
-      return this.$route.path.startsWith('/admin');
-    }
-  }
+      return this.$route.path.startsWith("/admin");
+    },
+  },
 };
 </script>
 
@@ -44,8 +44,8 @@ export default {
 }
 
 main {
-  flex: 1; /* Phần main sẽ chiếm không gian còn lại của trang */
-  padding: 20px; /* Khoảng đệm cho nội dung để dễ đọc hơn */
+  flex: 1;
+  padding: 20px;
   display: flex;
   justify-content: center;
   align-items: center;

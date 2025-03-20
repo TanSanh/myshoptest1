@@ -211,7 +211,6 @@ export default {
   transform: scale(0.98);
 }
 
-/* Swiper carousel styles */
 .carousel-container {
   width: 100%;
   height: 70vh;
@@ -283,7 +282,6 @@ export default {
   gap: 20px;
 }
 
-/* Header của khối sản phẩm nổi bật */
 .featured-header {
   display: flex;
   justify-content: space-between;
@@ -346,7 +344,7 @@ export default {
 .product-item p {
   font-size: 0.95em;
   color: #777;
-  flex: 1; /* Cho phép mô tả co giãn */
+  flex: 1; 
   margin-bottom: 5px;
 }
 
@@ -372,7 +370,7 @@ export default {
   color: #fff;
 }
 
-/* Thêm style cho số lượng đã bán */
+
 .product-stats {
   margin: 8px 0;
   font-size: 0.9em;
@@ -384,7 +382,7 @@ export default {
   font-weight: 500;
 }
 
-/* Loading state */
+
 .loading-state {
   text-align: center;
   padding: 40px;
@@ -399,7 +397,7 @@ export default {
   font-size: 1.1em;
 }
 
-/* Error state */
+
 .error-state {
   text-align: center;
   padding: 40px;

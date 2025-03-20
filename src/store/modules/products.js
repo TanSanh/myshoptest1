@@ -47,7 +47,7 @@ const actions = {
       // Fetch lại sản phẩm để đồng bộ
       await dispatch("fetchProducts");
     } catch (error) {
-      console.error("Error updating stock:", error);
+      console.error("Lỗi cập nhật hàng:", error);
       throw error;
     }
   },
@@ -57,13 +57,12 @@ const getters = {
   allProducts: (state) => state.products,
   getProductById: (state) => (id) => {
     if (!id) return null;
-    
-    // Chuyển id sang dạng chuỗi để so sánh an toàn
+
     const searchId = String(id);
-    
-    // Tìm sản phẩm theo id hoặc _id
+
     return state.products.find(
-      product => String(product.id) === searchId || String(product._id) === searchId
+      (product) =>
+        String(product.id) === searchId || String(product._id) === searchId
     );
   },
   isLoading: (state) => state.loading,

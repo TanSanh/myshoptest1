@@ -59,13 +59,13 @@ router.get(
           salesData[day] += order.totalPrice;
         });
       } catch (dbError) {
-        console.error("Error fetching dashboard data:", dbError);
+        console.error("Lỗi khi tải dữ liệu bảng điều khiển:", dbError);
 
         // Sử dụng dữ liệu mẫu nếu có lỗi
         totalRevenue = 42266000;
         totalOrders = 23;
         totalCustomers = 13;
-        totalProducts = 80;
+        totalProducts = 30;
         salesData = [
           0, 0, 0, 0, 0, 0, 0, 0, 0, 1000000, 0, 0, 0, 0, 0, 3000000, 0, 0, 0,
           2000000, 0, 4000000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -83,7 +83,7 @@ router.get(
         },
       });
     } catch (error) {
-      console.error("Dashboard stats error:", error);
+      console.error("Lỗi thống kê bảng điều khiển:", error);
       return res.status(500).json({
         success: false,
         message: "Lỗi server",

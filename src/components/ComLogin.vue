@@ -88,8 +88,6 @@ export default {
       if (Object.keys(this.errors).length > 0) {
         return;
       }
-
-      // Dữ liệu hợp lệ -> Gửi request login qua Vuex
       const userData = {
         email: this.formData.email,
         password: this.formData.password,
@@ -100,7 +98,6 @@ export default {
 
         // Nếu trong Vuex không có lỗi
         if (!this.storeErrorMessage) {
-          // Thông báo (nếu có vue-toastification)
           if (this.$toast) {
             this.$toast.success("Đăng nhập thành công!");
           } else {
@@ -189,7 +186,6 @@ export default {
   margin-top: 5px;
 }
 
-/* Nút đăng nhập */
 .btn-submit {
   padding: 12px;
   background-color: #fcb034;
@@ -209,7 +205,6 @@ export default {
   cursor: not-allowed;
 }
 
-/* Link quên mật khẩu / đăng kí */
 .helper-links {
   color: #555;
   font-size: 0.95em;

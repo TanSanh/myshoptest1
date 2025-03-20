@@ -1,3 +1,1 @@
-function MyComponent() {
-  // Your code here
-}
+function MyComponent() {}

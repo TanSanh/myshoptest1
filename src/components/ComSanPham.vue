@@ -258,9 +258,9 @@ export default {
     await this.loadProducts();
 
     // Lấy param category
-    const cat = this.$route.params.category; // "ban" (không dấu)
+    const cat = this.$route.params.category; 
     if (cat) {
-      this.selectedCategory = cat; // => "ban"
+      this.selectedCategory = cat;
       this.filterProducts();
     }
   },

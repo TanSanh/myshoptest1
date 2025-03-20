@@ -8,7 +8,7 @@ exports.getAllProducts = asyncHandler(async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: "Failed to fetch products",
+      message: "Không thể tải sản phẩm",
     });
   }
 });
@@ -17,7 +17,7 @@ exports.getProductById = asyncHandler(async (req, res) => {
   const product = await Product.findById(req.params.id);
   if (!product) {
     res.status(404);
-    throw new Error("Product not found");
+    throw new Error("Không tìm thấy sản phẩm");
   }
   res.json(product);
 });
@@ -38,7 +38,7 @@ exports.createProduct = asyncHandler(async (req, res) => {
 
   if (!name || !price || stock === undefined) {
     res.status(400);
-    throw new Error("Name, price, and stock are required");
+    throw new Error("Tên, giá và số lượng tồn là bắt buộc");
   }
 
   const newProduct = new Product({
@@ -57,7 +57,7 @@ exports.createProduct = asyncHandler(async (req, res) => {
 
   await newProduct.save();
   res.status(201).json({
-    message: "Product created successfully",
+    message: "Sản phẩm được tạo thành công",
     product: newProduct,
   });
 });
@@ -98,11 +98,11 @@ exports.updateProduct = asyncHandler(async (req, res) => {
 
   if (!updatedProduct) {
     res.status(404);
-    throw new Error("Product not found");
+    throw new Error("Không tìm thấy sản phẩm");
   }
 
   res.json({
-    message: "Product updated successfully",
+    message: "Sản phẩm được cập nhật thành công",
     product: updatedProduct,
   });
 });
@@ -113,7 +113,7 @@ exports.deleteProduct = asyncHandler(async (req, res) => {
 
   if (!deletedProduct) {
     res.status(404);
-    throw new Error("Product not found");
+    throw new Error("Không tìm thấy sản phẩm");
   }
 
   res.status(200).json({ message: "Product deleted successfully" });
@@ -125,13 +125,13 @@ exports.updateSold = asyncHandler(async (req, res) => {
 
   if (!quantitySold || quantitySold <= 0) {
     res.status(400);
-    throw new Error("Quantity sold must be greater than 0");
+    throw new Error("Số lượng bán ra phải lớn hơn 0");
   }
 
   const product = await Product.findById(productId);
   if (!product) {
     res.status(404);
-    throw new Error("Product not found");
+    throw new Error("Không tìm thấy sản phẩm");
   }
 
   if (product.stock < quantitySold) {
@@ -146,7 +146,7 @@ exports.updateSold = asyncHandler(async (req, res) => {
   await product.save();
 
   res.status(200).json({
-    message: "Product sold quantity updated successfully",
+    message: "Số lượng sản phẩm đã bán đã được cập nhật thành công",
     product,
   });
 });

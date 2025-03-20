@@ -121,12 +121,12 @@ export default {
     },
     getPaymentMethodText() {
       switch (this.paymentMethod) {
-        case "credit_card":
-          return "Thẻ tín dụng";
+        case "MOMO":
+          return "Ví điện tử MoMo";
         case "cash_on_delivery":
           return "Thanh toán khi nhận hàng";
-        case "bank_transfer":
-          return "Chuyển khoản ngân hàng";
+        case "VNPAY":
+          return "Ví điện tử VNPay";
         default:
           return "Không rõ";
       }
@@ -180,7 +180,7 @@ export default {
         phoneNumber: this.phoneNumber,
         items: orderItems,
         totalAmount,
-        paymentMethod: this.paymentMethod, // Gửi mã phương thức thanh toán thay vì text
+        paymentMethod: this.paymentMethod,
       };
 
       try {

@@ -281,10 +281,10 @@ export default {
   cursor: not-allowed;
 }
 
-/* Swiper carousel styles */
+
 .carousel-container {
   width: 100%;
-  height: 500px; /* Điều chỉnh chiều cao phù hợp */
+  height: 500px; 
   margin: 0 auto;
   position: relative;
   overflow: hidden;

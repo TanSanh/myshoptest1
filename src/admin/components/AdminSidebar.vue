@@ -10,7 +10,7 @@
           <img src="https://ui-avatars.com/api/?name=Admin&background=2196F3&color=fff" alt="Admin" class="profile-avatar">
           <div class="profile-text">
             <div class="profile-name">{{ adminName }}</div>
-            <div class="profile-role">Administrator</div>
+            <div class="profile-role">Admin</div>
           </div>
         </div>
       </div>
