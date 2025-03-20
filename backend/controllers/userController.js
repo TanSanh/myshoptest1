@@ -3,7 +3,7 @@ const asyncHandler = require("express-async-handler");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
-
+// đăng ký người dùng
 exports.registerUser = asyncHandler(async (req, res) => {
   const { fullname, email, password, phone } = req.body;
 
@@ -21,6 +21,7 @@ exports.registerUser = asyncHandler(async (req, res) => {
 
   try {
     const user = await User.create({
+      username: email, // Thêm username vì schema yêu cầu
       fullname,
       email,
       password,
@@ -47,7 +48,17 @@ exports.loginUser = asyncHandler(async (req, res) => {
   }
 
   const user = await User.findOne({ email });
-  if (!user || !(await bcrypt.compare(password, user.password))) {
+  console.log("Login attempt:", { email, foundUser: !!user }); // Thêm log để debug
+
+  if (!user) {
+    res.status(401);
+    throw new Error("Email hoặc mật khẩu không đúng!");
+  }
+
+  const isMatch = await bcrypt.compare(password, user.password);
+  console.log("Password match:", isMatch); // Thêm log để debug
+
+  if (!isMatch) {
     res.status(401);
     throw new Error("Email hoặc mật khẩu không đúng!");
   }

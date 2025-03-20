@@ -25,7 +25,7 @@ const userSchema = new mongoose.Schema(
       required: [true, "Vui lòng nhập mật khẩu"],
       minlength: [6, "Mật khẩu phải có ít nhất 6 ký tự"],
     },
-    fullName: {
+    fullname: {
       type: String,
       default: "",
     },
