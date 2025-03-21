@@ -4,97 +4,100 @@ const asyncHandler = require("express-async-handler");
 
 
 // Middleware xác thực token
-const authenticateToken = asyncHandler(async (req, res, next) => {
-  let token;
-  const authHeader = req.headers.authorization || req.headers.Authorization;
-
-  if (!authHeader || !authHeader.startsWith("Bearer")) {
-    res.status(401);
-    throw new Error("Không có token hoặc token không hợp lệ!");
-  }
-
-  token = authHeader.split(" ")[1];
-  
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
-    next();
-  } catch (error) {
-    res.status(401);
-    throw new Error("Người dùng không có quyền truy cập!");
-  }
-});
-
-//Middleware xác thực người dùng
-// Kiểm tra và giải mã JWT token từ Authorization header
-const auth = async (req, res, next) => {
+const authenticateToken = async (req, res, next) => {
   try {
     // Lấy token từ header
-    const token = req.header("Authorization")?.replace("Bearer ", "");
+    let token;
+    if (
+      req.headers.authorization &&
+      req.headers.authorization.startsWith("Bearer")
+    ) {
+      token = req.headers.authorization.split(" ")[1];
+    }
 
+    // Kiểm tra token
     if (!token) {
       return res.status(401).json({
         success: false,
-        message: "Không tìm thấy token xác thực",
+        message: "Không có token, yêu cầu đăng nhập!",
       });
     }
 
-    try {
-      // Verify token
-      const decoded = jwt.verify(
-        token,
-        process.env.JWT_SECRET || "your-secret-key"
-      );
+    // Xác thực token
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET || "shop_secret_key"
+    );
 
-      // Xử lý trường hợp đặc biệt - admin hardcoded
-      if (decoded.userId === "admin-user" && decoded.role === "admin") {
-        // Đặt thông tin admin vào request
-        req.token = token;
-        req.user = {
-          id: "admin-user",
-          username: "admin",
-          email: "admin@example.com",
-          role: "admin",
-        };
-        return next();
-      }
-
-      // Tìm user trong database
-      const user = await User.findById(decoded.userId);
-
-      if (!user) {
-        return res.status(401).json({
-          success: false,
-          message: "Người dùng không tồn tại",
-        });
-      }
-
-      // Thêm thông tin user vào request
-      req.token = token;
+    // Xử lý trường hợp admin hardcoded
+    if (decoded.userId === "admin-user" && decoded.role === "admin") {
       req.user = {
-        id: user._id,
-        username: user.username,
-        email: user.email,
-        role: user.role,
+        _id: "admin-user",
+        role: "admin"
       };
+      return next();
+    }
 
-      next();
-    } catch (error) {
+    // Lấy thông tin người dùng từ token
+    const user = await User.findById(decoded.userId || decoded.id).select("-password");
+    if (!user) {
       return res.status(401).json({
         success: false,
-        message: "Token không hợp lệ",
+        message: "Người dùng không tồn tại!",
       });
     }
+
+    // Lưu thông tin người dùng vào request
+    req.user = user;
+    next();
   } catch (error) {
-    console.error("Auth middleware error:", error);
-    res.status(500).json({
+    console.error("Auth error:", error);
+    if (error.name === "JsonWebTokenError") {
+      return res.status(401).json({
+        success: false,
+        message: "Token không hợp lệ!",
+      });
+    } else if (error.name === "TokenExpiredError") {
+      return res.status(401).json({
+        success: false,
+        message: "Token đã hết hạn!",
+      });
+    } else {
+      return res.status(401).json({
+        success: false,
+        message: "Lỗi xác thực: " + error.message,
+      });
+    }
+  }
+};
+
+// Middleware kiểm tra quyền admin
+const authorizeAdmin = (req, res, next) => {
+  if (req.user && req.user.role === "admin") {
+    next();
+  } else {
+    res.status(403).json({
       success: false,
-      message: "Lỗi xác thực",
+      message: "Bạn không có quyền truy cập tính năng này!",
     });
   }
 };
 
-module.exports = {
-  auth,
-  authenticateToken
+// Middleware kiểm tra quyền admin (tương thích ngược)
+const isAdmin = (req, res, next) => {
+  if (req.user && req.user.role === "admin") {
+    next();
+  } else {
+    res.status(403).json({
+      success: false,
+      message: "Bạn không có quyền truy cập tính năng này!",
+    });
+  }
 };
+
+// Middleware xác thực (tương thích ngược)
+const auth = async (req, res, next) => {
+  await authenticateToken(req, res, next);
+};
+
+module.exports = { authenticateToken, authorizeAdmin, auth, isAdmin };

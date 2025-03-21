@@ -6,6 +6,8 @@ const Product = require("../models/Product");
 const jwt = require("jsonwebtoken");
 const { auth } = require("../middleware/authMiddleware");
 const { isAdmin } = require("../middleware/authMiddleware");
+const { authenticateToken, authorizeAdmin } = require("../middleware/authMiddleware");
+const adminController = require("../controllers/adminController");
 
 // API lấy thống kê tổng quan cho dashboard
 router.get(
@@ -205,6 +207,7 @@ router.put(
     }
   }
 );
+
 // API xác thực đăng nhập admin
 router.post("/login", async (req, res) => {
   try {
@@ -270,5 +273,20 @@ router.post("/login", async (req, res) => {
     });
   }
 });
+
+// Dashboard
+router.get("/dashboard", authenticateToken, authorizeAdmin, adminController.getDashboardStats);
+
+// User Management
+router.get("/users", authenticateToken, authorizeAdmin, adminController.getAllUsers);
+router.get("/users/:userId", authenticateToken, authorizeAdmin, adminController.getUserById);
+router.put("/users/:userId", authenticateToken, authorizeAdmin, adminController.updateUser);
+router.delete("/users/:userId", authenticateToken, authorizeAdmin, adminController.deleteUser);
+
+// Product Management
+router.get("/products", authenticateToken, authorizeAdmin, adminController.getAllProducts);
+router.post("/products", authenticateToken, authorizeAdmin, adminController.createProduct);
+router.put("/products/:productId", authenticateToken, authorizeAdmin, adminController.updateProduct);
+router.delete("/products/:productId", authenticateToken, authorizeAdmin, adminController.deleteProduct);
 
 module.exports = router;
