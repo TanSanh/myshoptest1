@@ -1,17 +1,17 @@
 const express = require("express");
 const router = express.Router();
 const Order = require("../models/Order");
-const User = require("../models/User");
+const User = require("../models/userModel");
 const Product = require("../models/Product");
 const jwt = require("jsonwebtoken");
-const authMiddleware = require("../middleware/authMiddleware");
-const adminMiddleware = require("../middleware/adminMiddleware");
+const { auth } = require("../middleware/authMiddleware");
+const { isAdmin } = require("../middleware/authMiddleware");
 
 // API lấy thống kê tổng quan cho dashboard
 router.get(
   "/dashboard/stats",
-  authMiddleware,
-  adminMiddleware,
+  auth,
+  isAdmin,
   async (req, res) => {
     try {
       // Lấy các thống kê cần thiết
@@ -93,7 +93,7 @@ router.get(
 );
 
 // API lấy danh sách đơn hàng
-router.get("/orders", authMiddleware, adminMiddleware, async (req, res) => {
+router.get("/orders", auth, isAdmin, async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
@@ -158,8 +158,8 @@ router.get("/orders", authMiddleware, adminMiddleware, async (req, res) => {
 // API cập nhật trạng thái đơn hàng
 router.put(
   "/orders/:id/status",
-  authMiddleware,
-  adminMiddleware,
+  auth,
+  isAdmin,
   async (req, res) => {
     try {
       const { id } = req.params;

@@ -26,7 +26,6 @@ const actions = {
       );
       commit("SET_PAYMENT_HISTORY", response.data || []);
     } catch (error) {
-      console.error("Error fetching payment history:", error);
       commit("SET_PAYMENT_HISTORY", []);
     }
   },

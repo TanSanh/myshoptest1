@@ -10,6 +10,47 @@ exports.getCart = asyncHandler(async (req, res) => {
   res.status(200).json(cart);
 });
 
+exports.addToCart = asyncHandler(async (req, res) => {
+  const userId = req.user.id;
+  const { variantId, productId, name, color, size, quantity, price, image } = req.body;
+
+  let cart = await Cart.findOne({ userId });
+  if (!cart) {
+    cart = await Cart.create({ userId, items: [] });
+  }
+
+  // Kiểm tra sản phẩm đã có trong giỏ hàng chưa
+  const itemIndex = cart.items.findIndex(
+    (item) => item.variantId === variantId
+  );
+
+  if (itemIndex > -1) {
+    // Thay thế số lượng thay vì cộng dồn
+    cart.items[itemIndex].quantity = quantity;
+    cart.items[itemIndex].name = name;
+    cart.items[itemIndex].color = color;
+    cart.items[itemIndex].size = size;
+    cart.items[itemIndex].price = price;
+    cart.items[itemIndex].image = image;
+  } else {
+    // Thêm sản phẩm mới
+    cart.items.push({
+      variantId,
+      productId,
+      name,
+      color,
+      size,
+      quantity,
+      price,
+      image,
+    });
+  }
+
+  cart.updatedAt = Date.now();
+  await cart.save();
+  res.status(201).json(cart);
+});
+
 exports.updateCart = asyncHandler(async (req, res) => {
   const userId = req.user.id;
   const { variantId, quantity, productId, name, color, size, price, image } =
@@ -75,3 +116,5 @@ exports.clearCart = asyncHandler(async (req, res) => {
   }
   res.status(200).json({ message: "Giỏ hàng đã được xóa", items: [] });
 });
+
+

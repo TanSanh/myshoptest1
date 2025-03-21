@@ -1,9 +1,19 @@
 const express = require("express");
 const router = express.Router();
-const auth = require("../middleware/authMiddleware");
+const { authenticateToken } = require("../middleware/authMiddleware");
+
+// Giả lập lịch sử thanh toán
+let paymentHistory = {};
+
+// Lấy lịch sử thanh toán
+router.get("/history", authenticateToken, (req, res) => {
+  const userId = req.user.id;
+  const history = paymentHistory[userId] || [];
+  res.json(history);
+});
 
 // Giả lập xử lý thanh toán
-router.post("/process", auth, async (req, res) => {
+router.post("/process", authenticateToken, async (req, res) => {
   try {
     const { cartItems, shippingInfo, paymentMethod } = req.body;
 
@@ -52,7 +62,7 @@ router.post("/process", auth, async (req, res) => {
 });
 
 // Kiểm tra trạng thái thanh toán
-router.get("/status/:orderId", auth, (req, res) => {
+router.get("/status/:orderId", authenticateToken, (req, res) => {
   try {
     const { orderId } = req.params;
 
@@ -77,7 +87,7 @@ router.get("/status/:orderId", auth, (req, res) => {
 });
 
 // Hủy thanh toán
-router.post("/cancel/:orderId", auth, (req, res) => {
+router.post("/cancel/:orderId", authenticateToken, (req, res) => {
   try {
     const { orderId } = req.params;
 

@@ -40,7 +40,7 @@ export default {
       commit("SET_LOADING", true);
       commit("SET_ERROR", null);
       try {
-        const res = await axios.post("http://localhost:5001/users/login", {
+        const res = await axios.post("http://localhost:5001/api/users/login", {
           email: userData.email,
           password: userData.password,
         });
@@ -97,7 +97,7 @@ export default {
       
       try {
         // Gọi API để kiểm tra token
-        await axios.get("http://localhost:5001/users/me", {
+        await axios.get("http://localhost:5001/api/users/me", {
           headers: { Authorization: `Bearer ${token}` }
         });
         return true;
