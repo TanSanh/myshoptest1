@@ -1,17 +1,19 @@
 const express = require("express");
 const router = express.Router();
 const Order = require("../models/Order");
-const User = require("../models/User");
+const User = require("../models/userModel");
 const Product = require("../models/Product");
 const jwt = require("jsonwebtoken");
-const authMiddleware = require("../middleware/authMiddleware");
-const adminMiddleware = require("../middleware/adminMiddleware");
+const { auth } = require("../middleware/authMiddleware");
+const { isAdmin } = require("../middleware/authMiddleware");
+const { authenticateToken, authorizeAdmin } = require("../middleware/authMiddleware");
+const adminController = require("../controllers/adminController");
 
 // API lấy thống kê tổng quan cho dashboard
 router.get(
   "/dashboard/stats",
-  authMiddleware,
-  adminMiddleware,
+  auth,
+  isAdmin,
   async (req, res) => {
     try {
       // Lấy các thống kê cần thiết
@@ -93,7 +95,7 @@ router.get(
 );
 
 // API lấy danh sách đơn hàng
-router.get("/orders", authMiddleware, adminMiddleware, async (req, res) => {
+router.get("/orders", auth, isAdmin, async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
@@ -158,8 +160,8 @@ router.get("/orders", authMiddleware, adminMiddleware, async (req, res) => {
 // API cập nhật trạng thái đơn hàng
 router.put(
   "/orders/:id/status",
-  authMiddleware,
-  adminMiddleware,
+  auth,
+  isAdmin,
   async (req, res) => {
     try {
       const { id } = req.params;
@@ -205,6 +207,7 @@ router.put(
     }
   }
 );
+
 // API xác thực đăng nhập admin
 router.post("/login", async (req, res) => {
   try {
@@ -270,5 +273,20 @@ router.post("/login", async (req, res) => {
     });
   }
 });
+
+// Dashboard
+router.get("/dashboard", authenticateToken, authorizeAdmin, adminController.getDashboardStats);
+
+// User Management
+router.get("/users", authenticateToken, authorizeAdmin, adminController.getAllUsers);
+router.get("/users/:userId", authenticateToken, authorizeAdmin, adminController.getUserById);
+router.put("/users/:userId", authenticateToken, authorizeAdmin, adminController.updateUser);
+router.delete("/users/:userId", authenticateToken, authorizeAdmin, adminController.deleteUser);
+
+// Product Management
+router.get("/products", authenticateToken, authorizeAdmin, adminController.getAllProducts);
+router.post("/products", authenticateToken, authorizeAdmin, adminController.createProduct);
+router.put("/products/:productId", authenticateToken, authorizeAdmin, adminController.updateProduct);
+router.delete("/products/:productId", authenticateToken, authorizeAdmin, adminController.deleteProduct);
 
 module.exports = router;

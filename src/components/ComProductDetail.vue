@@ -149,6 +149,7 @@ export default {
         alert("Không đủ hàng trong kho");
         return;
       }
+
       const cartProduct = {
         ...product,
         quantity: this.selectedQuantity,
@@ -157,12 +158,13 @@ export default {
       };
       
       try {
-        await this.$store.dispatch("cart/addToCart", cartProduct);
-        // Hiển thị thông báo thành công
-        alert("Đã thêm sản phẩm vào giỏ hàng thành công!");
+        const message = await this.$store.dispatch("cart/addToCart", cartProduct);
+        if (message) {
+          alert(message);
+        }
       } catch (error) {
-        // Lỗi đã được xử lý trong store, không cần hiển thị ở đây
         console.error("Error in component:", error);
+        alert("Lỗi khi thêm vào giỏ hàng: " + (error.message || "Không xác định"));
       }
     },
   },

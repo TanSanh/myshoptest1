@@ -7,7 +7,9 @@
       <div class="login-message">
         <i class="fa fa-lock lock-icon"></i>
         <h2>Vui lòng đăng nhập để xem lịch sử thanh toán</h2>
-        <p>Bạn cần đăng nhập để có thể xem lịch sử các đơn hàng đã thanh toán.</p>
+        <p>
+          Bạn cần đăng nhập để có thể xem lịch sử các đơn hàng đã thanh toán.
+        </p>
         <button @click="redirectToLogin" class="login-button">Đăng nhập</button>
       </div>
     </div>
@@ -51,12 +53,12 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
+import { mapGetters } from "vuex";
 
 export default {
   computed: {
     ...mapGetters({
-      paymentHistory: 'paymentHistory/paymentHistory'
+      paymentHistory: "paymentHistory/paymentHistory",
     }),
     isAuthenticated() {
       return !!this.$store.getters["auth/currentUser"];
@@ -73,15 +75,15 @@ export default {
   methods: {
     loadPaymentHistory() {
       if (this.isAuthenticated) {
-        this.$store.dispatch('paymentHistory/fetchPaymentHistory');
+        this.$store.dispatch("paymentHistory/fetchPaymentHistory");
       }
     },
     formatDate(dateString) {
       if (!dateString) return "Không xác định";
-      
+
       const date = new Date(dateString);
       if (isNaN(date.getTime())) return "Không xác định";
-      
+
       return date.toLocaleString("vi-VN", {
         day: "2-digit",
         month: "2-digit",
@@ -92,19 +94,22 @@ export default {
     },
     formatPrice(amount) {
       if (!amount || isNaN(amount)) return "Không xác định";
-      return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(amount);
+      return new Intl.NumberFormat("vi-VN", {
+        style: "currency",
+        currency: "VND",
+      }).format(amount);
     },
     getPaymentMethodText(method) {
       const methods = {
-        "credit_card": "Thẻ tín dụng",
-        "cash_on_delivery": "Thanh toán khi nhận hàng",
-        "bank_transfer": "Chuyển khoản ngân hàng"
+        MOMO: "Ví điện tử MoMo",
+        cash_on_delivery: "Thanh toán khi nhận hàng",
+        VNPAY: "Ví điện tử VNPay",
       };
       return methods[method] || method || "Không xác định";
     },
     redirectToLogin() {
       this.$router.push("/login");
-    }
+    },
   },
   created() {
     this.loadPaymentHistory();

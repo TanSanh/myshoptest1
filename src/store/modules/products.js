@@ -23,7 +23,7 @@ const actions = {
     commit("SET_LOADING", true);
     commit("SET_ERROR", null);
     try {
-      const response = await axios.get("http://localhost:5001/products");
+      const response = await axios.get("http://localhost:5001/api/products");
       const mappedProducts = response.data.map((prod) => ({
         ...prod,
         id: prod._id,
@@ -38,7 +38,7 @@ const actions = {
   async updateProductStock({ dispatch }, { productId, quantity }) {
     try {
       await axios.put(
-        `http://localhost:5001/products/${productId}/updateSold`,
+        `http://localhost:5001/api/products/${productId}/updateSold`,
         { quantitySold: quantity },
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },

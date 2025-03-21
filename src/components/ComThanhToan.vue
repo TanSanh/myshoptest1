@@ -58,9 +58,9 @@
         <div class="form-group">
           <label for="paymentMethod">Phương thức thanh toán:</label>
           <select id="paymentMethod" v-model="paymentMethod" required>
-            <option value="credit_card">Thẻ tín dụng</option>
+            <option value="MOMO">Ví điện tử Momo</option>
             <option value="cash_on_delivery">Thanh toán khi nhận hàng</option>
-            <option value="bank_transfer">Chuyển khoản ngân hàng</option>
+            <option value="VNPAY">Ví điện tử VNPay</option>
           </select>
         </div>
         <button type="submit" class="btn btn-submit">Thanh toán</button>
@@ -206,7 +206,7 @@ export default {
           
           try {
             await axios.put(
-              `http://localhost:5001/products/${productId}/updateSold`,
+              `http://localhost:5001/api/products/${productId}/updateSold`,
               { quantitySold: item.quantity },
               {
                 headers: {

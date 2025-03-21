@@ -146,25 +146,26 @@ export default {
       };
 
       try {
-        const res = await axios.post(
-          "http://localhost:5001/users/register",
+        // Gọi API đăng ký
+        await axios.post(
+          "http://localhost:5001/api/users/register",
           userData
         );
-        console.log("Đăng kí thành công:", res.data);
+     
         alert("Đăng kí thành công!");
         // Chuyển sang trang đăng nhập
         this.$router.push("/login");
       } catch (error) {
         console.error("Lỗi đăng kí:", error);
+        console.error("Chi tiết lỗi:", error.response ? error.response.data : "Không có dữ liệu phản hồi");
       
         if (
           error.response &&
-          error.response.status === 409 &&
           error.response.data &&
-          error.response.data.message === "Email already exists"
+          error.response.data.message
         ) {
-          // Hiển thị lỗi email
-          this.errors.email = "Email đã tồn tại. Vui lòng dùng email khác.";
+          // Hiển thị lỗi từ server
+          this.errors.email = error.response.data.message;
         } else {
           alert("Đăng kí thất bại!");
         }
