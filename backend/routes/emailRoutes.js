@@ -71,4 +71,60 @@ Nội dung: ${message}`,
   }
 });
 
+// API endpoint để xử lý đăng ký nhận tin
+router.post("/subscribe", async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    // Kiểm tra dữ liệu
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: "Vui lòng nhập địa chỉ email",
+      });
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "Địa chỉ email không hợp lệ",
+      });
+    }
+
+    // Cấu hình email
+    const mailOptions = {
+      from: "hotansanh0304@gmail.com",
+      to: "hotansanh0304@gmail.com",
+      subject: "Có người đăng ký nhận tin mới",
+      text: `Một người dùng đã đăng ký nhận tin từ website:
+      
+Email: ${email}
+Nội dung: Tôi cần hỗ trợ`,
+      html: `
+        <h3>Có người đăng ký nhận tin mới từ website bán đồ nội thất</h3>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Nội dung:</strong></p>
+        <p>Tôi cần hỗ trợ</p>
+      `,
+    };
+
+    // Gửi email
+    await transporter.sendMail(mailOptions);
+
+    // Phản hồi thành công
+    res.status(200).json({
+      success: true,
+      message: "Đăng ký nhận tin thành công",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Có lỗi xảy ra khi đăng ký nhận tin",
+      error: error.message,
+    });
+  }
+});
+
 module.exports = router;

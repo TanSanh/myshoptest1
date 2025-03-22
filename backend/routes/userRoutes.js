@@ -13,6 +13,12 @@ router.post("/register", userController.registerUser);
 // Route đăng nhập
 router.post("/login", userController.loginUser);
 
+// Route xác nhận email
+router.get("/verify/:token", userController.verifyEmail);
+
+// Route gửi lại email xác nhận
+router.post("/resend-verification", userController.resendVerificationEmail);
+
 // Route lấy thông tin người dùng hiện tại
 router.get("/me", authenticateToken, userController.getCurrentUser);
 

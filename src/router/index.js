@@ -12,6 +12,8 @@ import Register from "@/components/ComRegister.vue";
 import Login from "@/components/ComLogin.vue";
 import Search from "@/components/ComSearch.vue";
 import Forgot from "@/components/ComForgot.vue";
+import EmailVerification from "@/components/ComEmailVerification.vue";
+import VerificationSuccess from "@/components/ComVerificationSuccess.vue";
 import AdminLayout from "@/admin/views/AdminLayout.vue";
 import AdminLogin from "@/admin/views/Login.vue";
 import Dashboard from "@/admin/views/Dashboard.vue";
@@ -33,6 +35,10 @@ const routes = [
   { path: "/login", name: "Login", component: Login },
   { path: "/search", name: "ComSearch", component: Search },
   { path: "/forgot", name: "Forgot", component: Forgot },
+  
+  // Routes xác nhận email
+  { path: "/verify-email/:token", name: "EmailVerification", component: EmailVerification },
+  { path: "/verification-success", name: "VerificationSuccess", component: VerificationSuccess },
   
   // Route admin login
   {

@@ -11,6 +11,7 @@
           id="fullname"
           v-model="formData.fullname"
           placeholder="Nhập họ và tên"
+          :disabled="isLoading"
         />
         <small v-if="errors.fullname" class="error-text">
           {{ errors.fullname }}
@@ -25,6 +26,7 @@
           id="email"
           v-model="formData.email"
           placeholder="VD: admin@gmail.com"
+          :disabled="isLoading"
         />
         <small v-if="errors.email" class="error-text">{{ errors.email }}</small>
       </div>
@@ -37,6 +39,7 @@
           id="password"
           v-model="formData.password"
           placeholder="Mật Khẩu phải chứa ít nhất 1 chữ hoa (A-Z)"
+          :disabled="isLoading"
         />
         <small v-if="errors.password" class="error-text">
           {{ errors.password }}
@@ -51,6 +54,7 @@
           id="confirmPassword"
           v-model="formData.confirmPassword"
           placeholder="Nhập lại mật khẩu"
+          :disabled="isLoading"
         />
         <small v-if="errors.confirmPassword" class="error-text">
           {{ errors.confirmPassword }}
@@ -65,12 +69,17 @@
           id="phone"
           v-model="formData.phone"
           placeholder="Nhập số điện thoại"
+          :disabled="isLoading"
         />
         <small v-if="errors.phone" class="error-text">{{ errors.phone }}</small>
       </div>
 
       <!-- Nút đăng kí -->
-      <button type="submit" class="btn-submit">Đăng Kí</button>
+      <button type="submit" class="btn-submit" :disabled="isLoading">
+        <span v-if="isLoading" class="loading-spinner"></span>
+        <span v-if="isLoading">Vui lòng đợi...</span>
+        <span v-else>Đăng Kí</span>
+      </button>
     </form>
 
     <p class="login-link">
@@ -97,63 +106,78 @@ export default {
       },
       // Lưu lỗi validation
       errors: {},
+      // Trạng thái đang xử lý
+      isLoading: false,
     };
   },
   methods: {
     // Xử lý submit form
     async handleSubmit() {
-      // Xoá lỗi cũ
+      // Reset errors
       this.errors = {};
 
-      // 1. Kiểm tra hợp lệ client-side
-      if (!this.formData.fullname) {
+      // Validate form
+      let isValid = true;
+
+      // Kiểm tra họ và tên
+      if (!this.formData.fullname.trim()) {
         this.errors.fullname = "Vui lòng nhập họ và tên";
-      }
-      if (!this.formData.email) {
-        this.errors.email = "Vui lòng nhập email";
-      } else if (!this.validateEmail(this.formData.email)) {
-        this.errors.email = "Email không hợp lệ";
-      }
-      if (!this.formData.password) {
-        this.errors.password = "Vui lòng nhập mật khẩu";
-      } else if (!/[A-Z]/.test(this.formData.password)) {
-        this.errors.password = "Mật khẩu phải chứa ít nhất 1 chữ hoa (A-Z)";
-      } else if (this.formData.password.length < 6) {
-        this.errors.password = "Mật khẩu phải dài ít nhất 6 ký tự";
-      }
-      if (!this.formData.confirmPassword) {
-        this.errors.confirmPassword = "Vui lòng nhập lại mật khẩu";
-      } else if (this.formData.confirmPassword !== this.formData.password) {
-        this.errors.confirmPassword = "Mật khẩu xác nhận không khớp";
-      }
-      if (!this.formData.phone) {
-        this.errors.phone = "Vui lòng nhập số điện thoại";
-      } else if (!/^(\d{9,11})$/.test(this.formData.phone)) {
-        this.errors.phone = "Số điện thoại phải 9-11 chữ số";
+        isValid = false;
       }
 
-      // Nếu có lỗi -> dừng
-      if (Object.keys(this.errors).length > 0) {
+      // Kiểm tra email
+      if (!this.formData.email.trim()) {
+        this.errors.email = "Vui lòng nhập email";
+        isValid = false;
+      } else if (!this.validateEmail(this.formData.email)) {
+        this.errors.email = "Email không hợp lệ";
+        isValid = false;
+      }
+
+      // Kiểm tra mật khẩu
+      if (!this.formData.password) {
+        this.errors.password = "Vui lòng nhập mật khẩu";
+        isValid = false;
+      } else if (this.formData.password.length < 6) {
+        this.errors.password = "Mật khẩu phải có ít nhất 6 ký tự";
+        isValid = false;
+      } else if (!/[A-Z]/.test(this.formData.password)) {
+        this.errors.password = "Mật khẩu phải chứa ít nhất 1 chữ hoa";
+        isValid = false;
+      }
+
+      // Kiểm tra xác nhận mật khẩu
+      if (this.formData.password !== this.formData.confirmPassword) {
+        this.errors.confirmPassword = "Mật khẩu không khớp";
+        isValid = false;
+      }
+
+      // Nếu không hợp lệ, dừng lại
+      if (!isValid) {
         return;
       }
 
-      // 2. Dữ liệu hợp lệ -> gọi API lưu user
-      const userData = {
-        fullname: this.formData.fullname,
-        email: this.formData.email,
-        password: this.formData.password,
-        phone: this.formData.phone,
-      };
+      // Bắt đầu loading
+      this.isLoading = true;
 
+      // Dữ liệu hợp lệ, gửi yêu cầu đăng ký
       try {
-        // Gọi API đăng ký
+        const userData = {
+          fullname: this.formData.fullname,
+          email: this.formData.email,
+          password: this.formData.password,
+          phone: this.formData.phone || "",
+        };
+
         await axios.post(
           "http://localhost:5001/api/users/register",
           userData
         );
-     
-        alert("Đăng kí thành công!");
-        // Chuyển sang trang đăng nhập
+       
+        // Thông báo đăng ký thành công và yêu cầu xác nhận email
+        alert("Đăng ký thành công! Vui lòng kiểm tra email để xác nhận tài khoản của bạn.");
+        
+        // Chuyển sang trang đăng nhập sau khi người dùng đóng thông báo
         this.$router.push("/login");
       } catch (error) {
         console.error("Lỗi đăng kí:", error);
@@ -167,8 +191,11 @@ export default {
           // Hiển thị lỗi từ server
           this.errors.email = error.response.data.message;
         } else {
-          alert("Đăng kí thất bại!");
+          alert("Đăng ký thất bại! Có lỗi xảy ra khi đăng ký tài khoản.");
         }
+      } finally {
+        // Kết thúc loading dù thành công hay thất bại
+        this.isLoading = false;
       }
     },
     // Kiểm tra email
@@ -232,6 +259,11 @@ export default {
   border-color: #fcb034;
 }
 
+.form-group input:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+}
+
 .error-text {
   color: red;
   font-size: 0.85em;
@@ -248,10 +280,36 @@ export default {
   border-radius: 6px;
   cursor: pointer;
   transition: background-color 0.3s, box-shadow 0.3s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
 }
+
 .btn-submit:hover {
   background-color: #e89c2f;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-submit:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Loading spinner */
+.loading-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 /* Link đăng nhập */

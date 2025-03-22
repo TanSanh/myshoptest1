@@ -48,6 +48,8 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   data() {
     return {
@@ -71,11 +73,26 @@ export default {
           throw new Error('Email không hợp lệ');
         }
         
-        // Giả lập thời gian xử lý
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        console.log("Đang gửi yêu cầu đến API...");
+        
+        // Log URL để debug
+        const apiUrl = 'http://localhost:5001/api/emails/subscribe';
+        console.log("API URL:", apiUrl);
+        
+        // Thêm timeout lâu hơn và log thêm thông tin
+        const response = await axios.post(apiUrl, {
+          email: this.email
+        }, {
+          timeout: 10000, // 10 giây
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        console.log("Phản hồi từ API:", response.data);
         
         // Hiển thị thông báo thành công
-        this.message = "Cảm ơn bạn đã đăng ký nhận tin!";
+        this.message = response.data.message || "Cảm ơn bạn đã đăng ký nhận tin!";
         this.messageType = "success";
         this.email = "";
         
@@ -85,7 +102,26 @@ export default {
         }, 3000);
         
       } catch (error) {
-        this.message = error.message || 'Có lỗi xảy ra, vui lòng thử lại sau.';
+        console.error("Lỗi:", error);
+        
+        // Log chi tiết lỗi để debug
+        if (error.response) {
+          // Lỗi server trả về
+          console.error("Dữ liệu phản hồi:", error.response.data);
+          console.error("Mã trạng thái:", error.response.status);
+        } else if (error.request) {
+          // Không nhận được phản hồi
+          console.error("Không nhận được phản hồi:", error.request);
+        }
+        
+        let errorMessage = 'Có lỗi xảy ra, vui lòng thử lại sau.';
+        if (error.response && error.response.data && error.response.data.message) {
+          errorMessage = error.response.data.message;
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+        
+        this.message = errorMessage;
         this.messageType = "error";
       } finally {
         this.isSubmitting = false;
