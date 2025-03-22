@@ -127,13 +127,14 @@
           Tổng số lượng sản phẩm đã chọn:
           <span class="summary-value">{{ selectedTotalItems }}</span>
         </p>
-        <button
+        <!-- <button
           @click="goToCheckout"
           class="btn-checkout"
           :disabled="selectedItems.length === 0"
         >
           Thanh Toán
-        </button>
+        </button> -->
+        <button @click="goToCheckout" class="btn-checkout">Thanh Toán</button>
       </div>
     </div>
   </div>

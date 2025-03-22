@@ -128,12 +128,26 @@ export default {
     toggleCategoryMenu() {
       this.showCategoryMenu = !this.showCategoryMenu;
     },
-    logout() {
-      this.$store.dispatch("auth/logout");
-      if (this.$toast) {
-        this.$toast.success("Đăng xuất thành công!");
+    confirmLogout() {
+      // Hiển thị hộp thoại xác nhận
+      const confirmed = window.confirm("Bạn có chắc chắn muốn đăng xuất?");
+      if (confirmed) {
+        this.logout();
       }
-      this.$router.push("/");
+    },
+    async logout() {
+      try {
+        await this.$store.dispatch("auth/logout");
+        if (this.$toast) {
+          this.$toast.success("Đăng xuất thành công!");
+        }
+        this.$router.push("/");
+      } catch (error) {
+        console.error("Lỗi khi đăng xuất:", error);
+        if (this.$toast) {
+          this.$toast.error("Đăng xuất thất bại. Vui lòng thử lại.");
+        }
+      }
     },
   },
 };
@@ -175,7 +189,6 @@ export default {
   align-items: center;
 }
 
-
 .menu-icon {
   margin-right: 30px;
   font-size: 30px;
@@ -184,7 +197,6 @@ export default {
 .menu-icon:hover {
   color: #4111c3;
 }
-
 
 .social-icons {
   display: flex;
@@ -201,13 +213,11 @@ export default {
   color: #2311e2;
 }
 
-
 .logo img {
   height: 75px;
   margin-right: 30px;
   border-radius: 60px;
 }
-
 
 nav {
   flex: 1;
@@ -229,7 +239,6 @@ nav {
 .menu li a:hover {
   color: #452abd;
 }
-
 
 .header-actions {
   display: flex;
@@ -274,7 +283,6 @@ nav {
   color: #ffffff;
 }
 
-
 .header-icons {
   display: flex;
   align-items: center;
@@ -311,7 +319,6 @@ nav {
   font-size: 12px;
 }
 
-
 .overlay {
   position: fixed;
   top: 0;
@@ -321,7 +328,6 @@ nav {
   background: rgba(0, 0, 0, 0.5);
   z-index: 998;
 }
-
 
 .category-menu-container {
   position: fixed;
@@ -360,7 +366,6 @@ nav {
   cursor: pointer;
 }
 
-
 .category-menu {
   list-style: none;
   margin: 0;
@@ -383,7 +388,6 @@ nav {
 .category-menu li a:hover {
   background-color: #f2f2f2;
 }
-
 
 @media (max-width: 768px) {
   .header-container {
