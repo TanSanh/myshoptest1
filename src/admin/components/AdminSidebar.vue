@@ -2,12 +2,16 @@
   <aside class="admin-sidebar">
     <div class="sidebar-header">
       <div class="logo">
-        <img :src="require('@/assets/LOGO.jpg')" alt="Logo" class="logo-img">
+        <img :src="require('@/assets/LOGO.jpg')" alt="Logo" class="logo-img" />
         <span class="logo-text">My Shop</span>
       </div>
       <div class="profile">
         <div class="profile-info">
-          <img src="https://ui-avatars.com/api/?name=Admin&background=2196F3&color=fff" alt="Admin" class="profile-avatar">
+          <img
+            src="https://ui-avatars.com/api/?name=Admin&background=2196F3&color=fff"
+            alt="Admin"
+            class="profile-avatar"
+          />
           <div class="profile-text">
             <div class="profile-name">{{ adminName }}</div>
             <div class="profile-role">Admin</div>
@@ -15,7 +19,7 @@
         </div>
       </div>
     </div>
-    
+
     <nav class="sidebar-nav">
       <ul>
         <li>
@@ -28,7 +32,7 @@
           <router-link to="/admin/orders">
             <i class="fas fa-shopping-bag"></i>
             <span>Đơn Hàng</span>
-            <span class="item-count">{{ orderCount }}</span>
+            <span class="item-count"></span>
           </router-link>
         </li>
         <li>
@@ -57,7 +61,7 @@
         </li>
       </ul>
     </nav>
-    
+
     <div class="sidebar-footer">
       <div class="footer-item" @click="logout">
         <i class="fas fa-sign-out-alt"></i>
@@ -69,11 +73,10 @@
 
 <script>
 export default {
-  name: 'admin-sidebar',
+  name: "admin-sidebar",
   data() {
     return {
-      adminName: 'Admin',
-      orderCount: 5
+      adminName: "Admin",
     };
   },
   created() {
@@ -82,25 +85,25 @@ export default {
   methods: {
     loadUserInfo() {
       try {
-        const userJson = localStorage.getItem('admin_user');
+        const userJson = localStorage.getItem("admin_user");
         if (userJson) {
           const user = JSON.parse(userJson);
-          this.adminName = user.name || user.username || 'Admin';
+          this.adminName = user.name || user.username || "Admin";
         }
       } catch (error) {
-        console.error('Error loading user info:', error);
+        console.error("Error loading user info:", error);
       }
     },
-    
+
     logout() {
       // Xóa thông tin đăng nhập
-      localStorage.removeItem('admin_token');
-      localStorage.removeItem('admin_user');
-      
+      localStorage.removeItem("admin_token");
+      localStorage.removeItem("admin_user");
+
       // Chuyển hướng về trang đăng nhập
-      this.$router.push('/admin/login');
-    }
-  }
+      this.$router.push("/admin/login");
+    },
+  },
 };
 </script>
 
@@ -207,7 +210,7 @@ export default {
 .sidebar-nav a.router-link-active {
   background-color: rgba(255, 255, 255, 0.15);
   color: white;
-  border-left: 3px solid var(--primary-color, #2196F3);
+  border-left: 3px solid var(--primary-color, #2196f3);
 }
 
 .sidebar-nav i {
@@ -219,19 +222,6 @@ export default {
 
 .sidebar-nav span {
   font-size: 14px;
-}
-
-.item-count {
-  position: absolute;
-  right: 15px;
-  background-color: var(--primary-color, #2196F3);
-  color: white;
-  border-radius: 10px;
-  font-size: 11px;
-  font-weight: bold;
-  padding: 2px 6px;
-  min-width: 16px;
-  text-align: center;
 }
 
 .sidebar-footer {
@@ -260,39 +250,39 @@ export default {
   .admin-sidebar {
     width: 60px;
   }
-  
+
   .logo-text,
   .profile-text,
   .sidebar-nav span {
     display: none;
   }
-  
+
   .sidebar-nav a {
     justify-content: center;
     padding: 12px 0;
   }
-  
+
   .sidebar-nav i {
     margin-right: 0;
     font-size: 18px;
   }
-  
+
   .item-count {
     position: absolute;
     top: 5px;
     right: 5px;
   }
-  
+
   .footer-item span {
     display: none;
   }
-  
+
   .footer-item {
     justify-content: center;
   }
-  
+
   .footer-item i {
     margin-right: 0;
   }
 }
-</style> 
+</style>

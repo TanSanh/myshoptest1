@@ -52,9 +52,9 @@
             </tr>
             <tr v-for="customer in filteredCustomers" :key="customer._id">
               <td>{{ shortId(customer._id) }}</td>
-              <td>{{ customer.fullName }}</td>
+              <td>{{ customer.fullname }}</td>
               <td>{{ customer.email }}</td>
-              <td>{{ customer.phone || 'Chưa cập nhật' }}</td>
+              <td>{{ customer.phone || "Chưa cập nhật" }}</td>
               <td>
                 <span class="role-badge" :class="getRoleClass(customer.role)">
                   {{ getRoleText(customer.role) }}
@@ -85,9 +85,7 @@
         >
           <i class="fas fa-chevron-left"></i>
         </button>
-        <div class="page-info">
-          Trang {{ currentPage }}/{{ totalPages }}
-        </div>
+        <div class="page-info">Trang {{ currentPage }}/{{ totalPages }}</div>
         <button
           :disabled="currentPage === totalPages"
           @click="changePage(currentPage + 1)"
@@ -110,7 +108,7 @@
         <div class="modal-body">
           <div class="form-group">
             <label>Họ Tên</label>
-            <input type="text" v-model="editForm.fullName" />
+            <input type="text" v-model="editForm.fullname" />
           </div>
           <div class="form-group">
             <label>Email</label>
@@ -149,7 +147,9 @@
         </div>
         <div class="modal-body">
           <p>
-            Bạn có chắc chắn muốn xóa khách hàng "{{ customerToDelete.fullName }}" không?
+            Bạn có chắc chắn muốn xóa khách hàng "{{
+              customerToDelete.fullname
+            }}" không?
           </p>
           <p class="warning">Hành động này không thể hoàn tác!</p>
         </div>
@@ -180,15 +180,15 @@ export default {
       showEditModal: false,
       editForm: {
         _id: null,
-        fullName: "",
+        fullname: "",
         email: "",
         phone: "",
-        role: "user"
+        role: "user",
       },
       saving: false,
       showDeleteModal: false,
       customerToDelete: {},
-      deleting: false
+      deleting: false,
     };
   },
   computed: {
@@ -196,15 +196,15 @@ export default {
       if (!this.searchQuery) {
         return this.customers;
       }
-      
+
       const query = this.searchQuery.toLowerCase();
       return this.customers.filter(
-        customer => 
-          customer.fullName.toLowerCase().includes(query) ||
+        (customer) =>
+          customer.fullname.toLowerCase().includes(query) ||
           customer.email.toLowerCase().includes(query) ||
           (customer.phone && customer.phone.includes(query))
       );
-    }
+    },
   },
   created() {
     this.fetchCustomers();
@@ -226,8 +226,8 @@ export default {
 
         const response = await fetch(API_URL, {
           headers: {
-            Authorization: `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         });
 
         if (response.ok) {
@@ -237,7 +237,9 @@ export default {
             this.customers = data.data;
             this.totalPages = Math.ceil(data.data.length / this.itemsPerPage);
           } else {
-            throw new Error(data.message || "Không thể tải danh sách khách hàng");
+            throw new Error(
+              data.message || "Không thể tải danh sách khách hàng"
+            );
           }
         } else if (response.status === 401 || response.status === 403) {
           localStorage.removeItem("admin_token");
@@ -253,96 +255,109 @@ export default {
         }
       } catch (error) {
         console.error("Customers List Error:", error);
-        this.error = error.message || "Không thể tải danh sách khách hàng. Vui lòng thử lại sau.";
-        if (error.message.includes("Failed to fetch") || error.message.includes("NetworkError")) {
-          this.error = "Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng hoặc máy chủ backend đã được khởi động chưa.";
+        this.error =
+          error.message ||
+          "Không thể tải danh sách khách hàng. Vui lòng thử lại sau.";
+        if (
+          error.message.includes("Failed to fetch") ||
+          error.message.includes("NetworkError")
+        ) {
+          this.error =
+            "Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng hoặc máy chủ backend đã được khởi động chưa.";
         }
       } finally {
         this.loading = false;
       }
     },
-    
+
     shortId(id) {
-      if (!id) return '';
+      if (!id) return "";
       // Lấy 6 ký tự cuối của ID MongoDB
       return id.substring(id.length - 6);
     },
-    
+
     getRoleClass(role) {
       return {
-        'admin': role === 'admin',
-        'user': role === 'user'
+        admin: role === "admin",
+        user: role === "user",
       };
     },
-    
+
     getRoleText(role) {
-      return role === 'admin' ? 'Quản trị viên' : 'Khách hàng';
+      return role === "admin" ? "Quản trị viên" : "Khách hàng";
     },
-    
+
     applyFilters() {
       this.currentPage = 1;
     },
-    
+
     changePage(page) {
       this.currentPage = page;
     },
-    
+
     editCustomer(customer) {
       this.editForm = { ...customer };
       this.showEditModal = true;
     },
-    
+
     closeModal() {
       this.showEditModal = false;
       this.editForm = {
         _id: null,
-        fullName: "",
+        fullname: "",
         email: "",
         phone: "",
-        role: "user"
+        role: "user",
       };
     },
-    
+
     async saveCustomer() {
       this.saving = true;
-      
+
       try {
         const token = localStorage.getItem("admin_token");
         if (!token) {
           this.$router.push("/admin/login");
           return;
         }
-        
+
         const API_URL = `http://localhost:5001/api/admin/users/${this.editForm._id}`;
-        
+
         const response = await fetch(API_URL, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            fullName: this.editForm.fullName,
+            fullname: this.editForm.fullname,
             email: this.editForm.email,
             phone: this.editForm.phone,
-            role: this.editForm.role
-          })
+            role: this.editForm.role,
+          }),
         });
-        
+
         if (response.ok) {
           const data = await response.json();
           if (data.success) {
             // Cập nhật dữ liệu trong danh sách
-            const index = this.customers.findIndex(c => c._id === this.editForm._id);
+            const index = this.customers.findIndex(
+              (c) => c._id === this.editForm._id
+            );
             if (index !== -1) {
-              this.customers[index] = {...this.customers[index], ...data.data};
+              this.customers[index] = {
+                ...this.customers[index],
+                ...data.data,
+              };
             }
-            
+
             this.closeModal();
             // Hiển thị thông báo thành công (có thể sử dụng toast hoặc alert)
             alert("Cập nhật thông tin khách hàng thành công!");
           } else {
-            throw new Error(data.message || "Không thể cập nhật thông tin khách hàng");
+            throw new Error(
+              data.message || "Không thể cập nhật thông tin khách hàng"
+            );
           }
         } else {
           const errorData = await response.json().catch(() => ({}));
@@ -353,46 +368,51 @@ export default {
         }
       } catch (error) {
         console.error("Update Customer Error:", error);
-        alert(error.message || "Không thể cập nhật thông tin khách hàng. Vui lòng thử lại sau.");
+        alert(
+          error.message ||
+            "Không thể cập nhật thông tin khách hàng. Vui lòng thử lại sau."
+        );
       } finally {
         this.saving = false;
       }
     },
-    
+
     confirmDelete(customer) {
       this.customerToDelete = customer;
       this.showDeleteModal = true;
     },
-    
+
     closeDeleteModal() {
       this.showDeleteModal = false;
       this.customerToDelete = {};
     },
-    
+
     async deleteCustomer() {
       this.deleting = true;
-      
+
       try {
         const token = localStorage.getItem("admin_token");
         if (!token) {
           this.$router.push("/admin/login");
           return;
         }
-        
+
         const API_URL = `http://localhost:5001/api/admin/users/${this.customerToDelete._id}`;
-        
+
         const response = await fetch(API_URL, {
           method: "DELETE",
           headers: {
-            Authorization: `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         });
-        
+
         if (response.ok) {
           const data = await response.json();
           if (data.success) {
             // Xóa khách hàng khỏi danh sách
-            this.customers = this.customers.filter(c => c._id !== this.customerToDelete._id);
+            this.customers = this.customers.filter(
+              (c) => c._id !== this.customerToDelete._id
+            );
             this.closeDeleteModal();
             // Hiển thị thông báo thành công
             alert("Xóa khách hàng thành công!");
@@ -408,12 +428,14 @@ export default {
         }
       } catch (error) {
         console.error("Delete Customer Error:", error);
-        alert(error.message || "Không thể xóa khách hàng. Vui lòng thử lại sau.");
+        alert(
+          error.message || "Không thể xóa khách hàng. Vui lòng thử lại sau."
+        );
       } finally {
         this.deleting = false;
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -524,7 +546,8 @@ export default {
   gap: 10px;
 }
 
-.btn-edit, .btn-delete {
+.btn-edit,
+.btn-delete {
   padding: 5px 10px;
   border: none;
   border-radius: 3px;

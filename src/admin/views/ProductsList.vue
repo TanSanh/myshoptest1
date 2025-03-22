@@ -2,7 +2,7 @@
 <template>
   <div class="products-container">
     <h1 class="page-title">Quản Lý Sản Phẩm</h1>
-    
+
     <div v-if="loading" class="loading-container">
       <div class="spinner">
         <i class="fas fa-spinner fa-spin"></i>
@@ -45,32 +45,35 @@
               <th>Tên sản phẩm</th>
               <th>Giá</th>
               <th>Tồn kho</th>
-              <th>Trạng thái</th>
+              <th>Loại</th>
+              <th>Thương hiệu</th>
               <th>Tùy chọn</th>
             </tr>
           </thead>
           <tbody>
             <tr v-if="filteredProducts.length === 0">
-              <td colspan="7" class="empty-message">
+              <td colspan="8" class="empty-message">
                 Không tìm thấy sản phẩm nào
               </td>
             </tr>
             <tr v-for="product in filteredProducts" :key="product._id">
               <td>{{ shortId(product._id) }}</td>
               <td class="product-image">
-                <img 
-                  :src="product.images && product.images.length > 0 ? product.images[0] : 'https://via.placeholder.com/50'" 
+                <img
+                  :src="
+                    product.image ||
+                    (product.images && product.images.length > 0)
+                      ? product.images[0]
+                      : 'https://via.placeholder.com/50'
+                  "
                   alt="Hình ảnh sản phẩm"
                 />
               </td>
               <td>{{ product.name }}</td>
               <td>{{ formatPrice(product.price) }}</td>
-              <td>{{ product.countInStock }}</td>
-              <td>
-                <span class="status-badge" :class="getStatusClass(product.isActive)">
-                  {{ product.isActive ? 'Còn bán' : 'Ngừng bán' }}
-                </span>
-              </td>
+              <td>{{ product.stock }}</td>
+              <td>{{ product.type || "Không xác định" }}</td>
+              <td>{{ product.brand || "Không xác định" }}</td>
               <td class="actions">
                 <button @click="editProduct(product)" class="btn-edit">
                   <i class="fas fa-edit"></i>
@@ -92,9 +95,7 @@
         >
           <i class="fas fa-chevron-left"></i>
         </button>
-        <div class="page-info">
-          Trang {{ currentPage }}/{{ totalPages }}
-        </div>
+        <div class="page-info">Trang {{ currentPage }}/{{ totalPages }}</div>
         <button
           :disabled="currentPage === totalPages"
           @click="changePage(currentPage + 1)"
@@ -109,7 +110,9 @@
     <div v-if="showAddModal || showEditModal" class="modal">
       <div class="modal-content product-modal">
         <div class="modal-header">
-          <h2>{{ showEditModal ? 'Chỉnh Sửa Sản Phẩm' : 'Thêm Sản Phẩm Mới' }}</h2>
+          <h2>
+            {{ showEditModal ? "Chỉnh Sửa Sản Phẩm" : "Thêm Sản Phẩm Mới" }}
+          </h2>
           <button @click="closeModal" class="close-btn">
             <i class="fas fa-times"></i>
           </button>
@@ -122,11 +125,31 @@
           <div class="form-row">
             <div class="form-group">
               <label>Giá <span class="required">*</span></label>
-              <input type="number" v-model="productForm.price" min="0" required />
+              <input
+                type="number"
+                v-model="productForm.price"
+                min="0"
+                required
+              />
             </div>
             <div class="form-group">
-              <label>Số lượng <span class="required">*</span></label>
-              <input type="number" v-model="productForm.countInStock" min="0" required />
+              <label>Số lượng tồn kho <span class="required">*</span></label>
+              <input
+                type="number"
+                v-model="productForm.stock"
+                min="0"
+                required
+              />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Loại sản phẩm</label>
+              <input type="text" v-model="productForm.type" />
+            </div>
+            <div class="form-group">
+              <label>Thương hiệu</label>
+              <input type="text" v-model="productForm.brand" />
             </div>
           </div>
           <div class="form-group">
@@ -134,26 +157,47 @@
             <textarea v-model="productForm.description" rows="3"></textarea>
           </div>
           <div class="form-group">
-            <label>Hình ảnh URL</label>
-            <input type="text" v-model="productForm.imageUrl" placeholder="https://example.com/image.jpg" />
-            <small>Nhập URL ảnh hoặc tải lên từ máy tính (chức năng đang phát triển)</small>
+            <label>Hình ảnh chính (URL)</label>
+            <input
+              type="text"
+              v-model="productForm.image"
+              placeholder="https://example.com/image.jpg"
+            />
           </div>
           <div class="form-group">
-            <label>Trạng thái</label>
-            <div class="toggle-container">
-              <label class="toggle">
-                <input type="checkbox" v-model="productForm.isActive">
-                <span class="slider"></span>
-              </label>
-              <span class="toggle-label">{{ productForm.isActive ? 'Đang bán' : 'Ngừng bán' }}</span>
-            </div>
+            <label>Các hình ảnh phụ (URL, cách nhau bởi dấu phẩy)</label>
+            <input
+              type="text"
+              v-model="imagesInput"
+              placeholder="https://example.com/image1.jpg, https://example.com/image2.jpg"
+            />
+          </div>
+          <div class="form-group">
+            <label>Màu sắc (cách nhau bởi dấu phẩy)</label>
+            <input
+              type="text"
+              v-model="colorsInput"
+              placeholder="xanh, đỏ, trắng"
+            />
+          </div>
+          <div class="form-group">
+            <label>Kích thước (cách nhau bởi dấu phẩy)</label>
+            <input
+              type="text"
+              v-model="sizesInput"
+              placeholder="100cm x 60cm, 180cm x 120cm "
+            />
           </div>
         </div>
         <div class="modal-footer">
           <button @click="closeModal" class="btn-cancel">Hủy</button>
-          <button @click="saveProduct" class="btn-save" :disabled="!isFormValid || saving">
+          <button
+            @click="saveProduct"
+            class="btn-save"
+            :disabled="!isFormValid || saving"
+          >
             <span v-if="saving"><i class="fas fa-spinner fa-spin"></i></span>
-            <span v-else>{{ showEditModal ? 'Cập nhật' : 'Thêm' }}</span>
+            <span v-else>{{ showEditModal ? "Cập nhật" : "Thêm" }}</span>
           </button>
         </div>
       </div>
@@ -170,7 +214,8 @@
         </div>
         <div class="modal-body">
           <p>
-            Bạn có chắc chắn muốn xóa sản phẩm "{{ productToDelete.name }}" không?
+            Bạn có chắc chắn muốn xóa sản phẩm "{{ productToDelete.name }}"
+            không?
           </p>
           <p class="warning">Hành động này không thể hoàn tác!</p>
         </div>
@@ -204,16 +249,23 @@ export default {
         _id: null,
         name: "",
         price: 0,
-        countInStock: 0,
+        stock: 0,
         description: "",
-        imageUrl: "",
-        isActive: true,
-        images: []
+        image: "",
+        images: [],
+        type: "",
+        brand: "",
+        colors: [],
+        sizes: [],
+        sold: 0,
       },
+      imagesInput: "", // Input tạm để nhập danh sách URL ảnh
+      colorsInput: "", // Input tạm để nhập danh sách màu sắc
+      sizesInput: "", // Input tạm để nhập danh sách kích thước
       saving: false,
       showDeleteModal: false,
       productToDelete: {},
-      deleting: false
+      deleting: false,
     };
   },
   computed: {
@@ -221,19 +273,21 @@ export default {
       if (!this.searchQuery) {
         return this.products;
       }
-      
+
       const query = this.searchQuery.toLowerCase();
       return this.products.filter(
-        product => 
+        (product) =>
           product.name.toLowerCase().includes(query) ||
           product._id.toLowerCase().includes(query)
       );
     },
     isFormValid() {
-      return this.productForm.name && 
-             this.productForm.price > 0 && 
-             this.productForm.countInStock >= 0;
-    }
+      return (
+        this.productForm.name &&
+        this.productForm.price > 0 &&
+        this.productForm.stock >= 0
+      );
+    },
   },
   created() {
     this.fetchProducts();
@@ -250,24 +304,20 @@ export default {
           return;
         }
 
-        const API_URL = "http://localhost:5001/api/admin/products";
+        const API_URL = "http://localhost:5001/api/products";
         console.log("Fetching products from:", API_URL);
 
         const response = await fetch(API_URL, {
           headers: {
-            Authorization: `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         });
 
         if (response.ok) {
           const data = await response.json();
           console.log("Products data:", data);
-          if (data.success) {
-            this.products = data.data;
-            this.totalPages = Math.ceil(data.data.length / this.itemsPerPage);
-          } else {
-            throw new Error(data.message || "Không thể tải danh sách sản phẩm");
-          }
+          this.products = data;
+          this.totalPages = Math.ceil(data.length / this.itemsPerPage);
         } else if (response.status === 401 || response.status === 403) {
           localStorage.removeItem("admin_token");
           localStorage.removeItem("admin_user");
@@ -282,40 +332,16 @@ export default {
         }
       } catch (error) {
         console.error("Products List Error:", error);
-        this.error = error.message || "Không thể tải danh sách sản phẩm. Vui lòng thử lại sau.";
-        if (error.message.includes("Failed to fetch") || error.message.includes("NetworkError")) {
-          this.error = "Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng hoặc máy chủ backend đã được khởi động chưa.";
+        this.error =
+          error.message ||
+          "Không thể tải danh sách sản phẩm. Vui lòng thử lại sau.";
+        if (
+          error.message.includes("Failed to fetch") ||
+          error.message.includes("NetworkError")
+        ) {
+          this.error =
+            "Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng hoặc máy chủ backend đã được khởi động chưa.";
 
-          // Sử dụng dữ liệu mẫu cho môi trường phát triển
-          this.products = [
-            {
-              _id: "6267d9220e4f441c71e7b31",
-              name: "Áo thun nam cổ tròn",
-              price: 199000,
-              countInStock: 50,
-              description: "Áo thun nam cổ tròn chất liệu cotton 100%",
-              images: ["https://via.placeholder.com/150?text=Ao+Thun"],
-              isActive: true
-            },
-            {
-              _id: "6267d9220e4f441c71e7b32",
-              name: "Quần jean nam slim fit",
-              price: 450000,
-              countInStock: 30,
-              description: "Quần jean nam slim fit màu xanh đen",
-              images: ["https://via.placeholder.com/150?text=Quan+Jean"],
-              isActive: true
-            },
-            {
-              _id: "6267d9220e4f441c71e7b33",
-              name: "Áo khoác nữ dáng dài",
-              price: 750000,
-              countInStock: 20,
-              description: "Áo khoác nữ dáng dài kiểu Hàn Quốc",
-              images: ["https://via.placeholder.com/150?text=Ao+Khoac"],
-              isActive: false
-            }
-          ];
           this.totalPages = Math.ceil(this.products.length / this.itemsPerPage);
           this.error = null;
         }
@@ -323,131 +349,159 @@ export default {
         this.loading = false;
       }
     },
-    
+
     shortId(id) {
-      if (!id) return '';
+      if (!id) return "";
       return id.substring(id.length - 6);
     },
-    
+
     formatPrice(price) {
-      return new Intl.NumberFormat('vi-VN', { 
-        style: 'currency', 
-        currency: 'VND',
-        maximumFractionDigits: 0
+      return new Intl.NumberFormat("vi-VN", {
+        style: "currency",
+        currency: "VND",
+        maximumFractionDigits: 0,
       }).format(price);
     },
-    
-    getStatusClass(isActive) {
-      return isActive ? 'active' : 'inactive';
-    },
-    
+
     applyFilters() {
       this.currentPage = 1;
     },
-    
+
     changePage(page) {
       this.currentPage = page;
     },
-    
+
     editProduct(product) {
-      this.productForm = { 
+      this.productForm = {
         _id: product._id,
         name: product.name,
         price: product.price,
-        countInStock: product.countInStock,
-        description: product.description || '',
-        imageUrl: product.images && product.images.length > 0 ? product.images[0] : '',
-        isActive: product.isActive !== false,
-        images: product.images || []
+        stock: product.stock,
+        description: product.description || "",
+        image: product.image || "",
+        images: product.images || [],
+        type: product.type || "",
+        brand: product.brand || "",
+        colors: product.colors || [],
+        sizes: product.sizes || [],
+        sold: product.sold || 0,
       };
+      this.imagesInput = (product.images || []).join(", ");
+      this.colorsInput = (product.colors || []).join(", ");
+      this.sizesInput = (product.sizes || []).join(", ");
       this.showEditModal = true;
     },
-    
+
     closeModal() {
       this.showAddModal = false;
       this.showEditModal = false;
       this.resetForm();
     },
-    
+
     resetForm() {
       this.productForm = {
         _id: null,
         name: "",
         price: 0,
-        countInStock: 0,
+        stock: 0,
         description: "",
-        imageUrl: "",
-        isActive: true,
-        images: []
+        image: "",
+        images: [],
+        type: "",
+        brand: "",
+        colors: [],
+        sizes: [],
+        sold: 0,
       };
+      this.imagesInput = "";
+      this.colorsInput = "";
+      this.sizesInput = "";
     },
-    
+
     async saveProduct() {
       if (!this.isFormValid) return;
-      
+
       this.saving = true;
-      
+
       try {
         const token = localStorage.getItem("admin_token");
         if (!token) {
           this.$router.push("/admin/login");
           return;
         }
-        
-        // Prepare product data
+
+        // Chuẩn bị dữ liệu sản phẩm
         const productData = {
           name: this.productForm.name,
           price: Number(this.productForm.price),
-          countInStock: Number(this.productForm.countInStock),
-          description: this.productForm.description,
-          isActive: this.productForm.isActive
+          stock: Number(this.productForm.stock),
+          description: this.productForm.description || "",
+          image: this.productForm.image || "",
+          images: this.imagesInput
+            ? this.imagesInput.split(",").map((url) => url.trim())
+            : [],
+          type: this.productForm.type || "",
+          brand: this.productForm.brand || "",
+          colors: this.colorsInput
+            ? this.colorsInput.split(",").map((color) => color.trim())
+            : [],
+          sizes: this.sizesInput
+            ? this.sizesInput.split(",").map((size) => size.trim())
+            : [],
+          sold: this.productForm.sold || 0,
         };
-        
-        // Add image if provided
-        if (this.productForm.imageUrl) {
-          productData.images = [this.productForm.imageUrl];
-        }
-        
+
         let API_URL, method;
-        
+
         if (this.showEditModal) {
-          // Update existing product
-          API_URL = `http://localhost:5001/api/admin/products/${this.productForm._id}`;
+          // Cập nhật sản phẩm
+          API_URL = `http://localhost:5001/api/products/${this.productForm._id}`;
           method = "PUT";
         } else {
-          // Create new product
-          API_URL = `http://localhost:5001/api/admin/products`;
+          // Tạo sản phẩm mới
+          API_URL = `http://localhost:5001/api/products`;
           method = "POST";
         }
-        
+
         const response = await fetch(API_URL, {
           method: method,
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`
+            Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(productData)
+          body: JSON.stringify(productData),
         });
-        
+
         if (response.ok) {
           const data = await response.json();
-          if (data.success) {
+          if (data.product) {
             if (this.showEditModal) {
-              // Update in the list
-              const index = this.products.findIndex(p => p._id === this.productForm._id);
+              // Cập nhật trong danh sách
+              const index = this.products.findIndex(
+                (p) => p._id === this.productForm._id
+              );
               if (index !== -1) {
-                this.products[index] = data.data;
+                this.products[index] = data.product;
               }
             } else {
-              // Add to the list
-              this.products.unshift(data.data);
-              this.totalPages = Math.ceil(this.products.length / this.itemsPerPage);
+              // Thêm vào danh sách
+              this.products.unshift(data.product);
+              this.totalPages = Math.ceil(
+                this.products.length / this.itemsPerPage
+              );
             }
-            
+
             this.closeModal();
-            alert(this.showEditModal ? "Cập nhật sản phẩm thành công!" : "Thêm sản phẩm mới thành công!");
+            alert(
+              this.showEditModal
+                ? "Cập nhật sản phẩm thành công!"
+                : "Thêm sản phẩm mới thành công!"
+            );
           } else {
-            throw new Error(data.message || `Không thể ${this.showEditModal ? 'cập nhật' : 'thêm'} sản phẩm`);
+            throw new Error(
+              data.message ||
+                `Không thể ${this.showEditModal ? "cập nhật" : "thêm"} sản phẩm`
+            );
           }
         } else {
           const errorData = await response.json().catch(() => ({}));
@@ -458,47 +512,56 @@ export default {
         }
       } catch (error) {
         console.error("Save Product Error:", error);
-        alert(error.message || `Không thể ${this.showEditModal ? 'cập nhật' : 'thêm'} sản phẩm. Vui lòng thử lại sau.`);
+        alert(
+          error.message ||
+            `Không thể ${
+              this.showEditModal ? "cập nhật" : "thêm"
+            } sản phẩm. Vui lòng thử lại sau.`
+        );
       } finally {
         this.saving = false;
       }
     },
-    
+
     confirmDelete(product) {
       this.productToDelete = product;
       this.showDeleteModal = true;
     },
-    
+
     closeDeleteModal() {
       this.showDeleteModal = false;
       this.productToDelete = {};
     },
-    
+
     async deleteProduct() {
       this.deleting = true;
-      
+
       try {
         const token = localStorage.getItem("admin_token");
         if (!token) {
           this.$router.push("/admin/login");
           return;
         }
-        
-        const API_URL = `http://localhost:5001/api/admin/products/${this.productToDelete._id}`;
-        
+
+        const API_URL = `http://localhost:5001/api/products/${this.productToDelete._id}`;
+
         const response = await fetch(API_URL, {
           method: "DELETE",
           headers: {
-            Authorization: `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         });
-        
+
         if (response.ok) {
           const data = await response.json();
-          if (data.success) {
-            // Remove from the list
-            this.products = this.products.filter(p => p._id !== this.productToDelete._id);
-            this.totalPages = Math.ceil(this.products.length / this.itemsPerPage);
+          if (data.message) {
+            // Xóa khỏi danh sách
+            this.products = this.products.filter(
+              (p) => p._id !== this.productToDelete._id
+            );
+            this.totalPages = Math.ceil(
+              this.products.length / this.itemsPerPage
+            );
             this.closeDeleteModal();
             alert("Xóa sản phẩm thành công!");
           } else {
@@ -517,8 +580,8 @@ export default {
       } finally {
         this.deleting = false;
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -656,7 +719,8 @@ export default {
   gap: 10px;
 }
 
-.btn-edit, .btn-delete {
+.btn-edit,
+.btn-delete {
   padding: 5px 10px;
   border: none;
   border-radius: 3px;
@@ -719,13 +783,14 @@ export default {
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  overflow-y: auto;
 }
 
 .modal-content {
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-  width: 500px;
+  width: 600px;
   max-width: 90%;
 }
 
@@ -757,6 +822,7 @@ export default {
 
 .modal-body {
   padding: 20px;
+  overflow-y: auto;
 }
 
 .form-group {
@@ -831,8 +897,8 @@ small {
   right: 0;
   bottom: 0;
   background-color: #ccc;
-  -webkit-transition: .4s;
-  transition: .4s;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
   border-radius: 34px;
 }
 
@@ -844,8 +910,8 @@ small {
   left: 4px;
   bottom: 4px;
   background-color: white;
-  -webkit-transition: .4s;
-  transition: .4s;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
   border-radius: 50%;
 }
 

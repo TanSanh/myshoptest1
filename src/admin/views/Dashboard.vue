@@ -21,7 +21,7 @@
       <div class="stats-container">
         <stat-card
           title="Tổng Doanh Thu"
-          :value="dashboardData.totalRevenue"
+          :value="formatCurrency(dashboardData.totalRevenue)"
           icon="fas fa-money-bill-wave"
           backgroundColor="#FF7B54"
         />
@@ -59,7 +59,17 @@
                 :style="{
                   height: `${(value / maxSalesValue) * 100}%`,
                 }"
+                :title="`Ngày ${index + 1}: ${formatCurrency(value)}`"
               ></div>
+            </div>
+          </div>
+          <div class="chart-labels">
+            <div
+              v-for="label in chartLabels"
+              :key="label.index"
+              class="chart-label"
+            >
+              {{ label.text }}
             </div>
           </div>
         </div>
@@ -91,13 +101,26 @@ export default {
   },
   computed: {
     currentMonth() {
-      return new Date().getMonth() + 1; // JavaScript months are 0-indexed
+      return new Date().getMonth() + 1;
     },
     currentYear() {
       return new Date().getFullYear();
     },
     maxSalesValue() {
+      if (
+        !this.dashboardData.salesData ||
+        this.dashboardData.salesData.length === 0
+      ) {
+        return 1;
+      }
       return Math.max(...this.dashboardData.salesData, 1);
+    },
+    chartLabels() {
+      if (!this.dashboardData.salesData) return [];
+
+      return this.dashboardData.salesData
+        .map((_, index) => ({ index, text: index + 1 }))
+        .filter((item) => item.index % 5 === 0);
     },
   },
   created() {
@@ -109,16 +132,14 @@ export default {
       this.error = null;
 
       try {
-        // Kiểm tra token
         const token = localStorage.getItem("admin_token");
         if (!token) {
           this.$router.push("/admin/login");
           return;
         }
 
-        // Gọi API lấy dữ liệu thống kê
         const response = await fetch(
-          "http://localhost:5001/api/admin/dashboard/stats",
+          "http://localhost:5001/api/admin/dashboard",
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -128,13 +149,19 @@ export default {
 
         if (response.ok) {
           const data = await response.json();
+
           if (data.success) {
-            this.dashboardData = data.data;
+            this.dashboardData = {
+              totalRevenue: data.data?.totalRevenue || 0,
+              totalOrders: data.data?.totalOrders || 0,
+              totalCustomers: data.data?.totalCustomers || 0,
+              totalProducts: data.data?.totalProducts || 0,
+              salesData: data.data?.salesData || Array(31).fill(0),
+            };
           } else {
             throw new Error(data.message || "Không thể tải dữ liệu thống kê");
           }
         } else if (response.status === 401 || response.status === 403) {
-          // Token không hợp lệ hoặc không có quyền admin
           localStorage.removeItem("admin_token");
           localStorage.removeItem("admin_user");
           this.$router.push("/admin/login");
@@ -147,54 +174,19 @@ export default {
           );
         }
       } catch (error) {
-        console.error("Dashboard Error:", error);
         this.error =
           error.message ||
           "Không thể tải dữ liệu bảng điều khiển. Vui lòng thử lại sau.";
-
-        // Nếu đang ở môi trường phát triển, vẫn hiển thị dữ liệu mẫu
-        if (process.env.NODE_ENV === "development") {
-          console.log("Sử dụng dữ liệu mẫu trong môi trường phát triển");
-          this.dashboardData = {
-            totalRevenue: 42266000,
-            totalOrders: 13,
-            totalCustomers: 45,
-            totalProducts: 18305,
-            salesData: [
-              0, 0, 0, 0, 0, 0, 0, 0, 0, 100000, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-              300000, 0, 400000, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            ],
-          };
-          // Ẩn lỗi nếu đang hiển thị dữ liệu mẫu
-          this.error = null;
-        }
       } finally {
         this.loading = false;
       }
     },
 
     formatCurrency(value) {
+      if (typeof value !== "number") {
+        value = Number(value) || 0;
+      }
       return value.toLocaleString("vi-VN") + " đ";
-    },
-
-    getStatusClass(status) {
-      const statusMap = {
-        completed: "hoan-thanh",
-        processing: "dang-xu-ly",
-        pending: "cho-xu-ly",
-        cancelled: "da-huy",
-      };
-      return statusMap[status] || status;
-    },
-
-    getStatusLabel(status) {
-      const statusMap = {
-        completed: "Hoàn thành",
-        processing: "Đang xử lý",
-        pending: "Chờ xử lý",
-        cancelled: "Đã hủy",
-      };
-      return statusMap[status] || status;
     },
   },
 };
@@ -317,6 +309,11 @@ export default {
   margin: 0 5px;
   transition: height 0.3s;
   min-height: 5px;
+  cursor: pointer;
+}
+
+.chart-bar:hover {
+  background-color: #1976d2;
 }
 
 .chart-labels {
@@ -330,87 +327,6 @@ export default {
   color: #888;
   width: 20px;
   text-align: center;
-}
-
-.recent-section {
-  display: grid;
-  grid-template-columns: 3fr 2fr;
-  gap: 20px;
-}
-
-.recent-orders {
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-}
-
-.recent-orders h2,
-h2 {
-  font-size: 18px;
-  margin-bottom: 15px;
-}
-
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.data-table th,
-.data-table td {
-  padding: 12px 15px;
-  text-align: left;
-  border-bottom: 1px solid #eee;
-}
-
-.data-table th {
-  font-weight: bold;
-  color: #555;
-  background-color: #f9f9f9;
-}
-
-.status-badge {
-  padding: 5px 10px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: bold;
-  text-transform: uppercase;
-}
-
-.hoan-thanh {
-  background-color: #e6f7ee;
-  color: #00965e;
-}
-
-.dang-xu-ly {
-  background-color: #e6f3ff;
-  color: #0070e0;
-}
-
-.cho-xu-ly {
-  background-color: #fff8e6;
-  color: #b78105;
-}
-
-.da-huy {
-  background-color: #fee6e6;
-  color: #d32f2f;
-}
-
-.hoat-dong {
-  background-color: #e6f7ee;
-  color: #00965e;
-}
-
-.khong-hoat-dong {
-  background-color: #f5f5f5;
-  color: #777;
-}
-
-.empty-table {
-  text-align: center;
-  color: #888;
-  padding: 30px 0;
 }
 
 @media (max-width: 1024px) {

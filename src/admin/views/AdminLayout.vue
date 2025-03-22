@@ -21,7 +21,6 @@
           <div class="notifications">
             <button class="icon-button">
               <i class="fas fa-bell"></i>
-              <span class="badge">3</span>
             </button>
           </div>
 
@@ -151,7 +150,9 @@ export default {
   flex: 1;
   margin-left: var(--sidebar-width);
   transition: margin-left 0.3s;
-  width: calc(100% - var(--sidebar-width)); /* Đảm bảo nội dung chiếm toàn bộ chiều rộng */
+  width: calc(
+    100% - var(--sidebar-width)
+  ); /* Đảm bảo nội dung chiếm toàn bộ chiều rộng */
 }
 
 .admin-header {
